@@ -78,15 +78,7 @@ const Home = () => {
           className="container mx-auto px-6 md:px-12 relative z-10"
         >
           <div className="max-w-5xl mx-auto text-center flex flex-col items-center">
-            <motion.div
-              variants={fadeIn('down', 'tween', 0.05, 0.8)}
-              className="mb-8 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.03] px-5 py-2.5 backdrop-blur-xl shadow-[0_10px_40px_rgba(0,0,0,0.35)]"
-            >
-              <span className="h-2.5 w-2.5 rounded-full bg-[#FF956D] shadow-[0_0_14px_rgba(255,149,109,0.9)]"></span>
-              <span className="text-[10px] md:text-xs uppercase tracking-[0.28em] text-white/90 font-semibold">
-                Elevating Digital Standards
-              </span>
-            </motion.div>
+           
 
             <motion.h1
               variants={fadeIn('up', 'spring', 0.2, 1.2)}
