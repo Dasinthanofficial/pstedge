@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
-import { getAdminToken } from '../../utils/auth';
+import api from '../../utils/api';
 
 const AdminServices = () => {
   const [services, setServices] = useState([]);
@@ -16,25 +15,17 @@ const AdminServices = () => {
     features: ''
   });
 
-  const token = getAdminToken();
-
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`
-    },
-    withCredentials: true
-  };
-
   useEffect(() => {
     fetchServices();
   }, []);
 
   const fetchServices = async () => {
     try {
-      const { data } = await axios.get('/api/services');
+      const { data } = await api.get('/api/services');
       setServices(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching services', error);
+      setServices([]);
     } finally {
       setLoading(false);
     }
@@ -43,8 +34,8 @@ const AdminServices = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this service?')) {
       try {
-        await axios.delete(`/api/services/${id}`, config);
-        setServices(services.filter((s) => s._id !== id));
+        await api.delete(`/api/services/${id}`);
+        setServices((prev) => prev.filter((service) => service._id !== id));
       } catch (error) {
         console.error('Error deleting', error);
         alert('Failed to delete service.');
@@ -59,7 +50,7 @@ const AdminServices = () => {
         title: service.title,
         iconName: service.iconName,
         description: service.description,
-        features: service.features.join(', ')
+        features: Array.isArray(service.features) ? service.features.join(', ') : ''
       });
     } else {
       setEditingId(null);
@@ -70,22 +61,27 @@ const AdminServices = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const payload = {
       ...formData,
-      features: formData.features.split(',').map((f) => f.trim()).filter((f) => f)
+      features: formData.features
+        .split(',')
+        .map((feature) => feature.trim())
+        .filter(Boolean)
     };
 
     try {
       if (editingId) {
-        await axios.put(`/api/services/${editingId}`, payload, config);
+        await api.put(`/api/services/${editingId}`, payload);
       } else {
-        await axios.post('/api/services', payload, config);
+        await api.post('/api/services', payload);
       }
-      fetchServices();
+
+      await fetchServices();
       setIsModalOpen(false);
     } catch (error) {
       console.error('Error saving service', error);
-      alert('Failed to save service.');
+      alert(error.response?.data?.message || 'Failed to save service.');
     }
   };
 

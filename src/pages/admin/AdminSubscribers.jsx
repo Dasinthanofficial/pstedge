@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Trash2, Mail, Download, Calendar } from 'lucide-react';
-import axios from 'axios';
-import { getAdminToken } from '../../utils/auth';
+import api from '../../utils/api';
+
+const escapeCSV = (value) => {
+  return `"${String(value ?? '').replace(/"/g, '""')}"`;
+};
 
 const AdminSubscribers = () => {
   const [subscribers, setSubscribers] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const token = getAdminToken();
 
   useEffect(() => {
     fetchSubscribers();
@@ -16,13 +17,11 @@ const AdminSubscribers = () => {
 
   const fetchSubscribers = async () => {
     try {
-      const res = await axios.get('/api/subscribers', {
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true
-      });
-      setSubscribers(res.data);
+      const res = await api.get('/api/subscribers');
+      setSubscribers(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error('Error fetching subscribers:', error);
+      setSubscribers([]);
     } finally {
       setLoading(false);
     }
@@ -32,11 +31,8 @@ const AdminSubscribers = () => {
     if (!window.confirm('Are you sure you want to remove this subscriber?')) return;
 
     try {
-      await axios.delete(`/api/subscribers/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true
-      });
-      setSubscribers(subscribers.filter((s) => s._id !== id));
+      await api.delete(`/api/subscribers/${id}`);
+      setSubscribers((prev) => prev.filter((subscriber) => subscriber._id !== id));
     } catch (error) {
       console.error('Delete failed:', error);
       alert('Failed to delete subscriber');
@@ -44,10 +40,17 @@ const AdminSubscribers = () => {
   };
 
   const exportToCSV = () => {
-    const csvContent =
-      'data:text/csv;charset=utf-8,Email,Joined Date\n' +
-      subscribers.map((s) => `${s.email},${new Date(s.createdAt).toLocaleDateString()}`).join('\n');
+    const header = 'Email,Joined Date\n';
+    const rows = subscribers
+      .map((subscriber) =>
+        [
+          escapeCSV(subscriber.email),
+          escapeCSV(new Date(subscriber.createdAt).toLocaleDateString())
+        ].join(',')
+      )
+      .join('\n');
 
+    const csvContent = `data:text/csv;charset=utf-8,${header}${rows}`;
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);

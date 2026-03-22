@@ -1,14 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, X, Image as ImageIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
-import { getAdminToken } from '../../utils/auth';
-
-const getImageUrl = (imagePath) => {
-  if (!imagePath) return '';
-  if (imagePath.startsWith('http')) return imagePath;
-  return `${import.meta.env.VITE_API_URL || ''}${imagePath}`;
-};
+import api from '../../utils/api';
+import { getImageUrl } from '../../utils/media';
 
 const AdminBlogs = () => {
   const [blogs, setBlogs] = useState([]);
@@ -26,36 +20,33 @@ const AdminBlogs = () => {
     file: null
   });
 
-  const token = getAdminToken();
-
-  const getConfig = (isFormData = false) => ({
-    headers: {
-      Authorization: `Bearer ${token}`,
-      ...(isFormData ? { 'Content-Type': 'multipart/form-data' } : {})
-    },
-    withCredentials: true
-  });
-
   useEffect(() => {
     fetchBlogs();
   }, []);
 
   const fetchBlogs = async () => {
     try {
-      const { data } = await axios.get('/api/blogs');
+      const { data } = await api.get('/api/blogs');
       setBlogs(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching blogs', error);
+      setBlogs([]);
     } finally {
       setLoading(false);
     }
   };
 
+  const getConfig = (isFormData = false) => ({
+    headers: {
+      ...(isFormData ? { 'Content-Type': 'multipart/form-data' } : {})
+    }
+  });
+
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this post?')) {
       try {
-        await axios.delete(`/api/blogs/${id}`, getConfig());
-        setBlogs(blogs.filter((b) => b._id !== id));
+        await api.delete(`/api/blogs/${id}`);
+        setBlogs((prev) => prev.filter((blog) => blog._id !== id));
       } catch (error) {
         console.error('Error deleting', error);
         alert('Failed to delete blog post.');
@@ -124,9 +115,9 @@ const AdminBlogs = () => {
 
     try {
       if (editingId) {
-        await axios.put(`/api/blogs/${editingId}`, payload, getConfig(true));
+        await api.put(`/api/blogs/${editingId}`, payload, getConfig(true));
       } else {
-        await axios.post('/api/blogs', payload, getConfig(true));
+        await api.post('/api/blogs', payload, getConfig(true));
       }
 
       await fetchBlogs();

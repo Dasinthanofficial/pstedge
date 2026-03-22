@@ -1,15 +1,12 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Trash2, Calendar, User, Phone, Briefcase, ChevronRight } from 'lucide-react';
-import axios from 'axios';
-import { getAdminToken } from '../../utils/auth';
+import api from '../../utils/api';
 
 const AdminMessages = () => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedMessage, setSelectedMessage] = useState(null);
-
-  const token = getAdminToken();
 
   useEffect(() => {
     fetchMessages();
@@ -17,13 +14,16 @@ const AdminMessages = () => {
 
   const fetchMessages = async () => {
     try {
-      const res = await axios.get('/api/contact', {
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true
-      });
-      setMessages(res.data);
+      const res = await api.get('/api/contact');
+      const messageList = Array.isArray(res.data) ? res.data : [];
+      setMessages(messageList);
+
+      if (messageList.length > 0 && !selectedMessage) {
+        setSelectedMessage(messageList[0]);
+      }
     } catch (error) {
       console.error('Error fetching messages:', error);
+      setMessages([]);
     } finally {
       setLoading(false);
     }
@@ -33,11 +33,8 @@ const AdminMessages = () => {
     if (!window.confirm('Are you sure you want to delete this message?')) return;
 
     try {
-      await axios.delete(`/api/contact/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true
-      });
-      setMessages(messages.filter((m) => m._id !== id));
+      await api.delete(`/api/contact/${id}`);
+      setMessages((prev) => prev.filter((message) => message._id !== id));
       if (selectedMessage?._id === id) setSelectedMessage(null);
     } catch (error) {
       console.error('Delete failed:', error);

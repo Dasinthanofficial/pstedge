@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, X, BarChart3 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
-import { getAdminToken } from '../../utils/auth';
+import api from '../../utils/api';
 
 const AdminStats = () => {
   const [stats, setStats] = useState([]);
@@ -15,25 +14,17 @@ const AdminStats = () => {
     order: 0
   });
 
-  const token = getAdminToken();
-
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`
-    },
-    withCredentials: true
-  };
-
   useEffect(() => {
     fetchStats();
   }, []);
 
   const fetchStats = async () => {
     try {
-      const { data } = await axios.get('/api/stats');
+      const { data } = await api.get('/api/stats');
       setStats(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching stats', error);
+      setStats([]);
     } finally {
       setLoading(false);
     }
@@ -42,8 +33,8 @@ const AdminStats = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this stat?')) {
       try {
-        await axios.delete(`/api/stats/${id}`, config);
-        setStats(stats.filter((s) => s._id !== id));
+        await api.delete(`/api/stats/${id}`);
+        setStats((prev) => prev.filter((stat) => stat._id !== id));
       } catch (error) {
         console.error('Error deleting', error);
         alert('Failed to delete stat.');
@@ -68,17 +59,24 @@ const AdminStats = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const payload = {
+      ...formData,
+      order: Number(formData.order)
+    };
+
     try {
       if (editingId) {
-        await axios.put(`/api/stats/${editingId}`, formData, config);
+        await api.put(`/api/stats/${editingId}`, payload);
       } else {
-        await axios.post('/api/stats', formData, config);
+        await api.post('/api/stats', payload);
       }
-      fetchStats();
+
+      await fetchStats();
       setIsModalOpen(false);
     } catch (error) {
       console.error('Error saving stat', error);
-      alert('Failed to save stat.');
+      alert(error.response?.data?.message || 'Failed to save stat.');
     }
   };
 
