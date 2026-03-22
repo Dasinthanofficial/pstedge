@@ -42,7 +42,6 @@ const Home = () => {
 
   return (
     <div className="w-full">
-      {/* HERO */}
       <section className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden bg-black pt-28 md:pt-32 pb-24">
         <div className="absolute inset-0 z-0 overflow-hidden">
           <motion.div
@@ -147,7 +146,6 @@ const Home = () => {
         </motion.div>
       </section>
 
-      {/* STATS */}
       <section className="py-20 border-y border-gray-900 bg-black/50 overflow-hidden">
         <div className="container mx-auto px-6 md:px-12">
           <motion.div
@@ -160,11 +158,11 @@ const Home = () => {
             {(stats.length > 0
               ? stats
               : [
-                { label: 'Projects Delivered', value: '1+' },
-                { label: 'Happy Clients', value: '1+' },
-                { label: 'Technologies Mastered', value: '10+' },
-                { label: 'Lines of Code', value: '50K+' }
-              ]
+                  { label: 'Projects Delivered', value: '1+' },
+                  { label: 'Happy Clients', value: '1+' },
+                  { label: 'Technologies Mastered', value: '10+' },
+                  { label: 'Lines of Code', value: '50K+' }
+                ]
             ).map((stat, i) => (
               <motion.div key={i} variants={zoomIn(0.1 * i, 0.8)}>
                 <h4 className="text-4xl md:text-5xl font-black text-white mb-2">{stat.value}</h4>
@@ -175,7 +173,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ABOUT PREVIEW */}
       <section className="py-24 relative">
         <div className="container mx-auto px-6 md:px-12">
           <div className="flex flex-col lg:flex-row items-center gap-16">
@@ -225,7 +222,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* WHY CHOOSE US */}
       <section className="py-24 relative overflow-hidden">
         <div className="container mx-auto px-6 md:px-12">
           <div className="flex flex-col lg:flex-row gap-16">
@@ -240,7 +236,7 @@ const Home = () => {
                 Why Choose <span className="text-white">PST EDGE</span>?
               </h2>
               <p className="text-gray-400 leading-relaxed mb-8">
-                We don't just build websites — we create complete digital solutions that elevate your brand and deliver real results.
+                We don&apos;t just build websites — we create complete digital solutions that elevate your brand and deliver real results.
               </p>
               <div className="p-8 glass rounded-3xl border-l-4 border-white/20">
                 <p className="italic text-gray-300">"Incredible attention to detail and a truly modern design vision. Highly recommended!"</p>
@@ -275,7 +271,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* SERVICES */}
       <section className="py-24 bg-[#0a0a0a]">
         <div className="container mx-auto px-6 md:px-12 text-center">
           <motion.div
@@ -334,7 +329,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* PROJECTS */}
       <section className="py-24 relative overflow-hidden">
         <div className="container mx-auto px-6 md:px-12">
           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
@@ -403,7 +397,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* FINAL CTA */}
       <section className="py-24 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] to-black z-0"></div>
         <div className="container mx-auto px-6 md:px-12 relative z-10 text-center">
@@ -415,7 +408,7 @@ const Home = () => {
             className="glass-card max-w-4xl mx-auto p-12 md:p-20 rounded-3xl border border-gray-800"
           >
             <h2 className="text-3xl md:text-5xl font-bold mb-6">Ready to Launch Your Digital Presence?</h2>
-            <p className="text-xl text-gray-400 mb-10">Let's build something amazing together.</p>
+            <p className="text-xl text-gray-400 mb-10">Let&apos;s build something amazing together.</p>
             <Link
               to="/contact"
               className="px-8 py-4 bg-white text-black rounded-full font-bold hover:bg-gray-200 transition-all hover:scale-105 inline-block text-lg"

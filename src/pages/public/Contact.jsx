@@ -50,7 +50,7 @@ const Contact = () => {
       <div className="container mx-auto px-6 md:px-12">
         <motion.div variants={fadeIn('up', 'tween', 0, 0.8)} initial="hidden" animate="show" className="text-center max-w-3xl mx-auto mb-16">
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4">Get In <span className="text-white">Touch</span></h1>
-          <p className="text-xl text-gray-400">Let's Build Something Amazing Together</p>
+          <p className="text-xl text-gray-400">Let&apos;s Build Something Amazing Together</p>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 relative z-10">

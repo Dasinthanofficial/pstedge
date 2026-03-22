@@ -6,12 +6,14 @@ export const getAdminInfo = () => {
   }
 };
 
-export const getAdminToken = () => {
-  return getAdminInfo()?.token || '';
-};
-
 export const setAdminInfo = (data) => {
-  localStorage.setItem('adminInfo', JSON.stringify(data));
+  const safeData = {
+    _id: data?._id,
+    email: data?.email,
+    role: data?.role
+  };
+
+  localStorage.setItem('adminInfo', JSON.stringify(safeData));
 };
 
 export const clearAdminAuth = () => {

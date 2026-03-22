@@ -2,18 +2,36 @@ import { useState, useEffect } from 'react';
 import { Outlet, Navigate, Link, useNavigate, useLocation } from 'react-router-dom';
 import { LayoutDashboard, FileText, Briefcase, Layers, LogOut, Menu, X, Mail, Users, BarChart3 } from 'lucide-react';
 import api from '../utils/api';
-import { getAdminInfo, clearAdminAuth } from '../utils/auth';
+import { getAdminInfo, setAdminInfo, clearAdminAuth } from '../utils/auth';
 
 const AdminLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const adminInfo = getAdminInfo();
+  useEffect(() => {
+    const verifySession = async () => {
+      try {
+        const { data } = await api.get('/api/auth/me');
+        setAdminInfo(data);
+        setIsAuthenticated(true);
+      } catch (error) {
+        clearAdminAuth();
+        setIsAuthenticated(false);
+      } finally {
+        setCheckingAuth(false);
+      }
+    };
 
-  if (!adminInfo) {
-    return <Navigate to="/admin/login" replace />;
-  }
+    verifySession();
+  }, []);
+
+  useEffect(() => {
+    setIsMobileOpen(false);
+  }, [location.pathname]);
 
   const handleLogout = async () => {
     try {
@@ -26,6 +44,8 @@ const AdminLayout = () => {
     }
   };
 
+  const adminInfo = getAdminInfo();
+
   const links = [
     { path: '/admin/dashboard', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
     { path: '/admin/services', name: 'Services', icon: <Layers size={20} /> },
@@ -36,9 +56,20 @@ const AdminLayout = () => {
     { path: '/admin/stats', name: 'Marketing Stats', icon: <BarChart3 size={20} /> },
   ];
 
-  useEffect(() => {
-    setIsMobileOpen(false);
-  }, [location.pathname]);
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen bg-black text-gray-300 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-10 w-10 border-2 border-white border-t-transparent"></div>
+          <p className="text-sm text-gray-500 uppercase tracking-widest">Checking session...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/admin/login" replace />;
+  }
 
   return (
     <div className="min-h-[100dvh] bg-black text-gray-200 flex flex-col md:flex-row font-sans">
@@ -47,7 +78,11 @@ const AdminLayout = () => {
           <img src="/logo.png" alt="PST EDGE Logo" className="h-8 w-auto drop-shadow-[0_0_8px_rgba(255,149,109,0.4)]" />
           <span>PST <span className="font-light tracking-widest">EDGE</span></span>
         </Link>
-        <button onClick={() => setIsMobileOpen(!isMobileOpen)} className="text-gray-300 p-2">
+        <button
+          onClick={() => setIsMobileOpen(!isMobileOpen)}
+          className="text-gray-300 p-2"
+          aria-label="Toggle admin menu"
+        >
           {isMobileOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
@@ -61,10 +96,19 @@ const AdminLayout = () => {
       >
         <div className="px-6 mb-10 hidden md:block">
           <Link to="/" className="text-xl font-bold tracking-wider text-white flex items-center gap-1">
-            <img src="/logo.png" alt="PST EDGE Logo" className="h-14 w-auto drop-shadow-[0_0_8px_rgba(37,99,235,0.4)] transform scale-125 origin-right" />
+            <img
+              src="/logo.png"
+              alt="PST EDGE Logo"
+              className="h-14 w-auto drop-shadow-[0_0_8px_rgba(37,99,235,0.4)] transform scale-125 origin-right"
+            />
             <span>PST <span className="font-light tracking-widest">EDGE</span></span>
           </Link>
           <p className="text-xs text-gray-500 mt-1 ml-1 uppercase tracking-widest">Admin Panel</p>
+          {adminInfo?.email && (
+            <p className="text-xs text-gray-600 mt-3 break-all">
+              {adminInfo.email}
+            </p>
+          )}
         </div>
 
         <nav className="flex-1 px-4 space-y-2 overflow-y-auto mt-16 md:mt-0">
@@ -75,7 +119,9 @@ const AdminLayout = () => {
                 key={link.path}
                 to={link.path}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  active ? 'bg-[#FF956D] text-white font-semibold' : 'text-gray-400 hover:text-white hover:bg-gray-900'
+                  active
+                    ? 'bg-[#FF956D] text-white font-semibold'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-900'
                 }`}
               >
                 {link.icon}
