@@ -239,9 +239,9 @@ const Home = () => {
             variants={itemVariants}
             className="text-5xl md:text-7xl lg:text-[5.5rem] font-extrabold tracking-tight text-gray-900 leading-[1.1] text-balance mb-6 text-center"
           >
-            We build stunning websites that <br className="hidden md:block" />
+           We develop websites focused on <br className="hidden md:block" />
             <span className="relative inline-block mt-2">
-              drive real results
+              growing your business.
               <BlueUnderline />
             </span>
           </motion.h1>
