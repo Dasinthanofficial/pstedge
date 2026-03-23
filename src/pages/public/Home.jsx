@@ -291,7 +291,7 @@ const Home = () => {
   const faqs = [
     { q: "Why choose our agency?", a: "We are dedicated to building fast, scalable, and beautiful websites tailored to your exact business needs. We treat your project like our own, focusing on quality and conversion." },
     { q: "How long does a project take?", a: "Most standard websites take between 2 to 4 weeks from discovery to launch. More complex web applications or e-commerce platforms may take 6 to 8 weeks depending on features." },
-    { q: "What is your tech stack?", a: "We specialize in modern architectures: React, Next.js, Node.js, and headless CMS solutions. This ensures your website is blazing fast, highly secure, and easily scalable." },
+    { q: "What is your tech stack?", a: "We specialize in modern architectures: React, Node.js, and headless CMS solutions. This ensures your website is blazing fast, highly secure, and easily scalable." },
     { q: "Do you handle SEO?", a: "Yes, technical SEO, semantic HTML, and metadata optimization are baked into our development process from day one. We ensure your site is perfectly readable by search engines." },
     { q: "Do you offer ongoing maintenance?", a: "Absolutely. We offer tailored monthly maintenance packages to keep your website updated, secure, and running smoothly so you can focus on your business." },
     { q: "What do I need to provide to get started?", a: "We'll need your branding assets (logo, colors), any existing copy or text you want to use, and a general idea of the websites or styles you admire. We'll guide you through the rest!" }
