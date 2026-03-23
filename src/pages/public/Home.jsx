@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -23,6 +23,130 @@ const BlueUnderline = () => (
   </svg>
 );
 
+// --- GOOGLE ANTIGRAVITY PARTICLE CANVAS ---
+const AntigravityCanvas = () => {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    let animationFrameId;
+    let width = canvas.offsetWidth;
+    let height = canvas.offsetHeight;
+
+    let mouseX = 0;
+    let mouseY = 0;
+    let targetMouseX = 0;
+    let targetMouseY = 0;
+
+    const handleMouseMove = (e) => {
+      // Get mouse position relative to the center of the screen
+      targetMouseX = e.clientX - window.innerWidth / 2;
+      targetMouseY = e.clientY - window.innerHeight / 2;
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+
+    const handleResize = () => {
+      width = canvas.offsetWidth;
+      height = canvas.offsetHeight;
+      canvas.width = width;
+      canvas.height = height;
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Initialize sizes
+
+    // Google-inspired vibrant colors
+    const colors = ['#4285F4', '#EA4335', '#FBBC05', '#34A853', '#8E44AD', '#F43F5E', '#FF8A65'];
+
+    // Create 3D particles
+    const particles = Array.from({ length: 450 }, () => ({
+      x: (Math.random() - 0.5) * 3000,
+      y: (Math.random() - 0.5) * 3000,
+      z: Math.random() * 2000, // Depth
+      color: colors[Math.floor(Math.random() * colors.length)],
+      speed: Math.random() * 1.5 + 0.5,
+      length: Math.random() * 12 + 4,
+      thickness: Math.random() * 2.5 + 1.5,
+    }));
+
+    const render = () => {
+      // Smooth easing for mouse parallax
+      mouseX += (targetMouseX - mouseX) * 0.05;
+      mouseY += (targetMouseY - mouseY) * 0.05;
+
+      ctx.clearRect(0, 0, width, height);
+
+      // Shift vanishing point based on mouse for parallax effect
+      const centerX = width / 2 - mouseX * 0.6;
+      const centerY = height / 2 - mouseY * 0.6;
+
+      particles.forEach(p => {
+        // Move particle forward
+        p.z -= p.speed;
+        
+        // Reset particle to the back when it passes the camera
+        if (p.z <= 0) {
+          p.z = 2000;
+          p.x = (Math.random() - 0.5) * 3000;
+          p.y = (Math.random() - 0.5) * 3000;
+        }
+
+        // 3D to 2D projection
+        const fov = 350;
+        const scale = fov / (fov + p.z);
+        const x2d = p.x * scale + centerX;
+        const y2d = p.y * scale + centerY;
+
+        // Calculate angle so dash points towards the vanishing point (radiation effect)
+        const angle = Math.atan2(y2d - centerY, x2d - centerX);
+
+        ctx.save();
+        ctx.translate(x2d, y2d);
+        ctx.rotate(angle);
+        ctx.fillStyle = p.color;
+
+        // Fade in from distance, fade out near camera
+        let alpha = Math.min(1, (2000 - p.z) / 800);
+        if (p.z < 150) alpha = p.z / 150; 
+        ctx.globalAlpha = alpha;
+
+        // Scale dimensions for depth perception
+        const currentLength = Math.max(2, p.length * scale * 1.5);
+        const currentThick = Math.max(1, p.thickness * scale * 1.5);
+
+        ctx.beginPath();
+        // Support modern roundRect, fallback to standard rect
+        if (ctx.roundRect) {
+          ctx.roundRect(-currentLength / 2, -currentThick / 2, currentLength, currentThick, currentThick / 2);
+        } else {
+          ctx.rect(-currentLength / 2, -currentThick / 2, currentLength, currentThick);
+        }
+        ctx.fill();
+        ctx.restore();
+      });
+
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 w-full h-full pointer-events-none z-0"
+    />
+  );
+};
+
 // --- FAQ ACCORDION COMPONENT ---
 const FAQItem = ({ question, answer, isOpen, onClick, index }) => {
   return (
@@ -45,7 +169,6 @@ const FAQItem = ({ question, answer, isOpen, onClick, index }) => {
           transition={{ type: "spring", stiffness: 200, damping: 20 }}
           className={`flex-shrink-0 ml-4 transition-colors duration-300 ${isOpen ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-500'}`}
         >
-          {/* Slightly thicker stroke to match the screenshot */}
           <ChevronDown size={22} strokeWidth={2.5} /> 
         </motion.div>
       </button>
@@ -195,7 +318,6 @@ const Home = () => {
     { name: "Figma", src: "https://api.iconify.design/logos:figma.svg" }
   ];
 
-  // Animation Variants
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
@@ -212,14 +334,15 @@ const Home = () => {
   return (
     <div className="w-full bg-white selection:bg-blue-100 selection:text-blue-900 relative overflow-hidden">
       
-      {/* Contact Form Overlay */}
       <AnimatePresence>
         {isContactOpen && <ContactFormModal isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />}
       </AnimatePresence>
 
       {/* 1. HERO SECTION */}
-      <section className="relative pt-32 pb-10 md:pt-40 md:pb-16 px-6 flex flex-col items-center text-center">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTAgMGg0MHY0MEgwem0yMCAyMHYyMEgwVjIweiIgZmlsbD0iI2Y5ZmFmYiIgZmlsbC1ydWxlPSJldmVub2RkIi8+PC9zdmc+')] opacity-50 z-0"></div>
+      <section className="relative pt-32 pb-10 md:pt-40 md:pb-16 px-6 flex flex-col items-center text-center overflow-hidden">
+        
+        {/* NEW ANTIGRAVITY PARTICLE CANVAS */}
+        <AntigravityCanvas />
         
         <motion.div 
           variants={containerVariants}
@@ -237,7 +360,7 @@ const Home = () => {
 
           <motion.h1 
             variants={itemVariants}
-            className="text-5xl md:text-7xl lg:text-[5.5rem] font-extrabold tracking-tight text-gray-900 leading-[1.1] text-balance mb-6 text-center"
+            className="text-5xl md:text-7xl lg:text-[5.5rem] font-extrabold tracking-tight text-gray-900 leading-[1.1] text-balance mb-6 text-center drop-shadow-sm"
           >
            We develop websites focused on <br className="hidden md:block" />
             <span className="relative inline-block mt-2">
@@ -248,31 +371,27 @@ const Home = () => {
           
           <motion.p 
             variants={itemVariants}
-            className="mt-6 text-lg md:text-xl text-gray-500 max-w-2xl mx-auto font-medium text-center leading-relaxed"
+            className="mt-6 text-lg md:text-xl text-gray-600 max-w-2xl mx-auto font-medium text-center leading-relaxed drop-shadow-sm"
           >
             Stop losing customers to a slow or outdated website. We design fast, modern, and user-friendly experiences that help your brand stand out and grow.
           </motion.p>
           
           <motion.div variants={itemVariants} className="mt-10 flex flex-col sm:flex-row justify-center gap-4 w-full sm:w-auto">
             
-            {/* MONOCHROMATIC LIQUID GLASS BUTTON */}
             <motion.button 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsContactOpen(true)} 
               className="relative group px-8 py-4 rounded-full font-semibold flex items-center justify-center gap-2.5 text-white overflow-hidden transition-all duration-500 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.25)]"
               style={{
-                // Base sleek dark glass
                 background: 'rgba(10, 10, 10, 0.8)',
                 backdropFilter: 'blur(16px)',
                 WebkitBackdropFilter: 'blur(16px)',
-                // Top rim light & inner shadow for volume
                 border: '1px solid rgba(255, 255, 255, 0.08)',
                 borderTop: '1px solid rgba(255, 255, 255, 0.25)',
                 boxShadow: 'inset 0 1px 4px rgba(255,255,255,0.15)'
               }}
             >
-              {/* Single-color liquid sheen (Soft shifting reflection) */}
               <div className="absolute inset-0 -z-10 opacity-30 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none blur-[20px]">
                 <motion.div 
                   animate={{ x: [-30, 30, -30], y: [-5, 5, -5] }}
@@ -281,7 +400,6 @@ const Home = () => {
                 />
               </div>
 
-              {/* Fixed Crisp Icon */}
               <Star 
                 size={18} 
                 className="relative z-10 text-white transition-transform duration-500 group-hover:rotate-[144deg]" 
@@ -291,7 +409,6 @@ const Home = () => {
               <span className="relative z-10 tracking-wide text-white">Book a Strategy Call</span>
             </motion.button>
 
-            {/* SECONDARY BUTTON */}
             <motion.a 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -306,7 +423,7 @@ const Home = () => {
           {/* Tech Marquee Entrance */}
           <motion.div 
             variants={itemVariants} 
-            className="mt-20 pt-10 border-t border-gray-100 relative w-full overflow-hidden"
+            className="mt-20 pt-10 relative w-full overflow-hidden"
           >
             <div className="absolute left-0 top-10 bottom-0 w-20 md:w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
             <div className="absolute right-0 top-10 bottom-0 w-20 md:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
@@ -409,11 +526,9 @@ const Home = () => {
               whileHover={{ y: -8 }}
               className="bento-card p-8 md:p-10 relative overflow-hidden group bg-white border border-gray-200 hover:border-blue-200 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 flex flex-col cursor-default"
             >
-              {/* Subtle ambient glow on hover */}
               <div className="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
               
               <div className="relative z-10 flex-grow flex flex-col">
-                {/* Header Row: Number + Expanding Line */}
                 <div className="flex justify-between items-center mb-8">
                   <span className="text-5xl md:text-6xl font-black text-gray-200 group-hover:text-blue-500 transition-colors duration-500">
                     {srv.num}
@@ -421,12 +536,10 @@ const Home = () => {
                   <div className="w-8 h-[3px] bg-gray-100 group-hover:bg-blue-500 group-hover:w-16 transition-all duration-500 ease-out rounded-full"></div>
                 </div>
                 
-                {/* Title */}
                 <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 group-hover:text-blue-600 transition-colors duration-300">
                   {srv.title}
                 </h3>
                 
-                {/* Description */}
                 <p className="text-gray-500 leading-relaxed text-sm md:text-base mt-auto">
                   {srv.desc}
                 </p>
@@ -531,7 +644,6 @@ const Home = () => {
           transition={{ duration: 0.8, type: "spring" }}
           className="bg-[#0a0a0a] rounded-[2.5rem] p-12 md:p-20 text-center relative overflow-hidden shadow-2xl shadow-black/20"
         >
-          {/* Subtle animated background shapes */}
           <motion.div 
             animate={{ rotate: 360 }} 
             transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
