@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Navigate, Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Briefcase, LogOut, Menu, X, Mail } from 'lucide-react';
+import { LayoutDashboard, Briefcase, LogOut, Menu, X, Mail, MessageSquare } from 'lucide-react'; // <-- ADDED MessageSquare
 import api from '../utils/api';
 import { getAdminInfo, setAdminInfo, clearAdminAuth } from '../utils/auth';
 
@@ -46,9 +46,11 @@ const AdminLayout = () => {
 
   const adminInfo = getAdminInfo();
 
+  // <-- ADDED Testimonials to the links array
   const links = [
     { path: '/admin/dashboard', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
     { path: '/admin/projects', name: 'Projects', icon: <Briefcase size={20} /> },
+    { path: '/admin/testimonials', name: 'Reviews', icon: <MessageSquare size={20} /> },
     { path: '/admin/messages', name: 'Inquiries', icon: <Mail size={20} /> },
   ];
 

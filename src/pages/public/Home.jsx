@@ -255,6 +255,94 @@ const ContactFormModal = ({ isOpen, onClose }) => {
   );
 };
 
+// --- TESTIMONIAL SLIDESHOW COMPONENT (iPhone XS Optimized) ---
+const TestimonialSlider = () => {
+  const [testimonials, setTestimonials] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const { data } = await api.get('/api/testimonials');
+        setTestimonials(data);
+      } catch (error) { console.error('Error fetching testimonials', error); }
+    };
+    fetchTestimonials();
+  }, []);
+
+  useEffect(() => {
+    if (testimonials.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+    }, 6000); 
+    return () => clearInterval(timer);
+  }, [testimonials]);
+
+  if (testimonials.length === 0) return null;
+
+  const current = testimonials[currentIndex];
+
+  return (
+    <section className="py-16 md:py-24 px-4 sm:px-6 max-w-4xl mx-auto border-t border-gray-100">
+      <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+        
+        <h2 className="text-3xl md:text-5xl font-black tracking-tight text-gray-900 text-center mb-8 md:mb-14">
+          What Clients Say
+        </h2>
+
+        <div className="relative w-full overflow-hidden bg-white border border-gray-200 rounded-2xl md:rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 sm:p-10 md:p-14">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={current._id}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.4 }}
+              className="flex flex-col items-center text-center"
+            >
+              <div className="flex items-center gap-1 mb-4 md:mb-6">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-5 h-5 md:w-6 md:h-6" fill="#FACC15" color="#FACC15" />
+                ))}
+              </div>
+
+              <p className="text-base sm:text-lg md:text-xl text-gray-600 leading-relaxed font-medium mb-8 md:mb-10 max-w-2xl">
+                "{current.quote}"
+              </p>
+
+              <hr className="w-full border-gray-100 mb-6 md:mb-8" />
+
+              <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full justify-center">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-sm sm:text-lg shrink-0 border border-gray-200">
+                  {current.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="text-center sm:text-left min-w-0 max-w-full px-2">
+                  <h4 className="font-bold text-gray-900 text-sm md:text-base truncate">{current.name}</h4>
+                  <p className="text-gray-500 text-xs md:text-sm truncate mt-0.5">{current.role}</p>
+                </div>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+
+          {testimonials.length > 1 && (
+            <div className="flex justify-center gap-2 mt-8 md:mt-10">
+              {testimonials.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentIndex(i)}
+                  className={`h-2 rounded-full transition-all duration-300 ${i === currentIndex ? 'bg-blue-600 w-6 sm:w-8' : 'bg-gray-200 hover:bg-gray-300 w-2'}`}
+                  aria-label={`Go to slide ${i + 1}`}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+        
+      </motion.div>
+    </section>
+  );
+};
+
 const Home = () => {
   const [openFAQ, setOpenFAQ] = useState(0);
   const [projects, setProjects] = useState([]);
@@ -622,7 +710,10 @@ const Home = () => {
         </div>
       </section>
 
-      {/* 5. FAQ SECTION */}
+      {/* 5. TESTIMONIAL SLIDER */}
+      <TestimonialSlider />
+
+      {/* 6. FAQ SECTION */}
       <section id="faq" className="py-16 md:py-24 px-4 sm:px-6 max-w-4xl mx-auto border-t border-gray-100">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -654,7 +745,7 @@ const Home = () => {
         </motion.div>
       </section>
 
-      {/* 6. CTA BANNER (BLACK) */}
+      {/* 7. CTA BANNER (BLACK) */}
       <section className="pt-8 pb-4 md:py-12 px-4 sm:px-6 max-w-7xl mx-auto overflow-hidden">
         <motion.div 
           initial={{ opacity: 0, scale: 0.95, y: 30 }}
@@ -691,7 +782,7 @@ const Home = () => {
         </motion.div>
       </section>
 
-      {/* 7. FOOTER */}
+      {/* 8. FOOTER */}
       <section className="px-2 sm:px-4 md:px-6 pb-6 mt-4 md:mt-10 max-w-7xl mx-auto">
         <div className="bg-[#050505] rounded-t-[2rem] rounded-b-3xl md:rounded-[2.5rem] p-6 sm:p-8 md:p-16 lg:p-20 text-white relative overflow-hidden flex flex-col justify-between md:min-h-[550px] border border-gray-900 shadow-2xl">
           
