@@ -1,101 +1,87 @@
 import { useState, useEffect } from 'react';
-import { NavLink, Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const location = useLocation();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [location.pathname]);
-
   const navLinks = [
-    { name: 'Home', path: '/' },
-    { name: 'About', path: '/about' },
-    { name: 'Services', path: '/services' },
-    { name: 'Portfolio', path: '/portfolio' },
-    { name: 'Blog', path: '/blog' },
-    { name: 'Contact', path: '/contact' },
+    { name: 'Home', href: '#' },
+    { name: 'Projects', href: '#projects' },
+    { name: 'Services', href: '#services' },
+    { name: 'FAQ', href: '#faq' },
+    { name: 'About', href: '#about' },
   ];
 
   return (
     <header
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-        isScrolled ? 'glass py-2' : 'bg-transparent py-4'
+        isScrolled ? 'bg-white/80 backdrop-blur-md border-b border-gray-100 py-3' : 'bg-transparent py-5'
       }`}
     >
-      <div className="container mx-auto px-6 md:px-12 flex items-center justify-between">
-        <Link to="/" className="inline-flex items-center group py-2 overflow-visible">
-          <img
-            src="/logo.png"
-            alt="PST EDGE"
-            className="h-10 md:h-12 w-auto object-contain drop-shadow-[0_0_15px_rgba(255,149,109,0.3)] group-hover:drop-shadow-[0_0_30px_rgba(255,149,109,0.5)] transition-all duration-500 transform scale-[4] origin-left"
+      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+        
+        {/* Logo Image - SCALE INCREASED FURTHER */}
+        <a href="#" className="flex items-center shrink-0 py-2">
+          <img 
+            src="/logo.png" 
+            alt="Agency Logo" 
+            /* Increased base height to h-12 and scale to 3.5x on desktop */
+            className="h-10 md:h-12 w-auto object-contain transform scale-[2] md:scale-[3.5] origin-left transition-transform" 
           />
-        </Link>
+        </a>
 
-        <nav className="hidden md:flex items-center gap-8">
+        {/* Desktop Nav */}
+        <nav className="hidden md:flex items-center gap-8 bg-gray-50/80 backdrop-blur-md px-8 py-3 rounded-full border border-gray-200/50 shadow-sm">
           {navLinks.map((link) => (
-            <NavLink
+            <a
               key={link.name}
-              to={link.path}
-              className={({ isActive }) =>
-                `text-base tracking-wide transition-colors duration-300 hover:text-white ${
-                  isActive ? 'text-white font-semibold' : 'text-gray-400'
-                }`
-              }
+              href={link.href}
+              className="text-sm font-medium text-gray-600 hover:text-black transition-colors"
             >
               {link.name}
-            </NavLink>
+            </a>
           ))}
-          <Link
-            to="/contact"
-            className="ml-4 px-6 py-2.5 rounded-full bg-white text-black font-semibold text-base transition-transform duration-300 hover:scale-105 hover:bg-gray-200"
-          >
-            Get a Quote
-          </Link>
         </nav>
 
+        {/* CTA Button */}
+        <div className="hidden md:block">
+          <button className="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800 transition-colors">
+            Book a Call
+          </button>
+        </div>
+
+        {/* Mobile Toggle */}
         <button
-          className={`md:hidden focus:outline-none transition-colors ${isMobileMenuOpen ? 'text-[#FF956D]' : 'text-gray-300 hover:text-[#FF956D]'}`}
+          className="md:hidden text-gray-900"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
-          {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
+      {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-black border-t border-gray-800 py-4 shadow-2xl">
-          <div className="flex flex-col px-6 space-y-4">
-            {navLinks.map((link) => (
-              <NavLink
-                key={link.name}
-                to={link.path}
-                className={({ isActive }) =>
-                  `block text-lg font-medium transition-colors ${
-                    isActive ? 'text-white' : 'text-gray-400'
-                  }`
-                }
-              >
-                {link.name}
-              </NavLink>
-            ))}
-            <Link
-              to="/contact"
-              className="mt-4 px-6 py-3 rounded-full bg-white text-black font-semibold text-center transition-transform hover:scale-105"
+        <div className="md:hidden absolute top-full left-0 w-full bg-white border-b border-gray-100 shadow-xl py-6 px-6 flex flex-col gap-4">
+          {navLinks.map((link) => (
+            <a
+              key={link.name}
+              href={link.href}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="text-lg font-medium text-gray-600 hover:text-black"
             >
-              Get a Quote
-            </Link>
-          </div>
+              {link.name}
+            </a>
+          ))}
+          <button className="bg-black text-white px-5 py-3 rounded-full text-sm font-semibold w-full mt-4">
+            Book a Call
+          </button>
         </div>
       )}
     </header>
