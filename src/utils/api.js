@@ -9,11 +9,19 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const status = error.response?.status;
+    const pathname = window.location.pathname;
+    const requestUrl = error.config?.url || '';
+
+    const isAdminRoute = pathname.startsWith('/admin');
+    const isLoginPage = pathname === '/admin/login';
+    const isLoginRequest = requestUrl.includes('/api/auth/login');
+
+    if (status === 401) {
       clearAdminAuth();
 
-      if (window.location.pathname.startsWith('/admin')) {
-        window.location.href = '/admin/login';
+      if (isAdminRoute && !isLoginPage && !isLoginRequest) {
+        window.location.replace('/admin/login');
       }
     }
 

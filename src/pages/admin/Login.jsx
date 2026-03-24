@@ -1,17 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { LogIn } from 'lucide-react';
 import api from '../../utils/api';
-import { setAdminInfo } from '../../utils/auth';
+import { setAdminInfo, clearAdminAuth } from '../../utils/auth';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const { data } = await api.get('/api/auth/me');
+        setAdminInfo(data);
+        navigate('/admin/dashboard', { replace: true });
+      } catch {
+        clearAdminAuth();
+      } finally {
+        setCheckingSession(false);
+      }
+    };
+
+    checkSession();
+  }, [navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -28,6 +45,14 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  if (checkingSession) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black px-6">
+        <div className="animate-spin rounded-full h-10 w-10 border-2 border-white border-t-transparent"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black relative px-6">
@@ -48,7 +73,7 @@ const Login = () => {
               className="h-48 md:h-64 w-auto object-contain drop-shadow-[0_0_40px_rgba(255,149,109,0.35)] transform scale-110"
             />
           </div>
-          <h2 className="text-2xl font-semibold mt-4">Admin Portal</h2>
+          <h2 className="text-2xl font-semibold mt-4 text-white">Admin Portal</h2>
           <p className="text-sm text-gray-500 mt-2">Sign in to manage content</p>
         </div>
 
@@ -68,6 +93,7 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              autoComplete="email"
               className="w-full bg-[#050505] border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#FF956D] transition-colors shadow-inner"
             />
           </div>
@@ -81,6 +107,7 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              autoComplete="current-password"
               className="w-full bg-[#050505] border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-gray-500 transition-colors shadow-inner"
             />
           </div>
