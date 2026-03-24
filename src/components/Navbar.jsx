@@ -83,11 +83,11 @@ const Navbar = () => {
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-        <Link to="/" className="flex items-center shrink-0 py-2" aria-label="Go to homepage">
+        <Link to="/" className="flex items-center shrink-0 py-2 overflow-visible" aria-label="Go to homepage">
           <img
             src="/logo.png"
             alt="Agency Logo"
-            className="h-10 md:h-12 w-auto object-contain transform scale-[2] md:scale-[3.5] origin-left transition-transform"
+            className="h-12 sm:h-14 md:h-12 w-auto object-contain origin-left scale-[2.8] sm:scale-[3] md:scale-[3.5] transition-transform"
           />
         </Link>
 
