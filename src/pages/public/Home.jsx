@@ -862,7 +862,7 @@ const Home = () => {
                 <p className="text-gray-500 text-xs md:text-sm">Satisfied Clients</p>
               </motion.div>
               <motion.div whileHover={{ y: -5 }} className="bento-card p-4 md:p-6 bg-white border border-gray-200 shadow-sm cursor-default">
-                <h4 className="text-2xl md:text-3xl font-black text-gray-900 mb-1">2026</h4>
+                <h4 className="text-2xl md:text-3xl font-black text-gray-900 mb-1">March 23, 2026</h4>
                 <p className="text-gray-500 text-xs md:text-sm">Agency Founded</p>
               </motion.div>
             </div>
